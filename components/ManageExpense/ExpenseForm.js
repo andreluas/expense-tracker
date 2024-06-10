@@ -1,22 +1,19 @@
-import React, { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+
 import Input from "./Input";
 import Button from "../UI/Button";
+import { getFormattedDate } from "../../util/date";
 import { GlobalStyles } from "../../constants/styles";
 
-export default function ExpenseForm({
-  submitButtonLabel,
-  onCancel,
-  onSubmit,
-  defaultValues,
-}) {
+function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
   const [inputs, setInputs] = useState({
     amount: {
       value: defaultValues ? defaultValues.amount.toString() : "",
       isValid: true,
     },
     date: {
-      value: defaultValues ? defaultValues.date.toISOString().slice(0, 10) : "",
+      value: defaultValues ? getFormattedDate(defaultValues.date) : "",
       isValid: true,
     },
     description: {
@@ -42,11 +39,11 @@ export default function ExpenseForm({
     };
 
     const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
-    const dateIsValid = expenseData.date.toString() === "Invalid Date";
+    const dateIsValid = expenseData.date.toString() !== "Invalid Date";
     const descriptionIsValid = expenseData.description.trim().length > 0;
 
     if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
-      // Alert.alert("Invalid input", "Please check your input values");
+      // Alert.alert('Invalid input', 'Please check your input values');
       setInputs((curInputs) => {
         return {
           amount: { value: curInputs.amount.value, isValid: amountIsValid },
@@ -100,7 +97,7 @@ export default function ExpenseForm({
         textInputConfig={{
           multiline: true,
           // autoCapitalize: 'none'
-          // autoCorrect: false,
+          // autoCorrect: false // default is true
           onChangeText: inputChangedHandler.bind(this, "description"),
           value: inputs.description.value,
         }}
@@ -122,6 +119,8 @@ export default function ExpenseForm({
   );
 }
 
+export default ExpenseForm;
+
 const styles = StyleSheet.create({
   form: {
     marginTop: 40,
@@ -140,6 +139,11 @@ const styles = StyleSheet.create({
   rowInput: {
     flex: 1,
   },
+  errorText: {
+    textAlign: "center",
+    color: GlobalStyles.colors.error500,
+    margin: 8,
+  },
   buttons: {
     flexDirection: "row",
     justifyContent: "center",
@@ -148,10 +152,5 @@ const styles = StyleSheet.create({
   button: {
     minWidth: 120,
     marginHorizontal: 8,
-  },
-  errorText: {
-    textAlign: "center",
-    color: GlobalStyles.colors.error500,
-    margin: 8,
   },
 });
